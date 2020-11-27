@@ -42,7 +42,7 @@ namespace OnTheBeachExercise
 
         private void PrepareJob(string dependentName, string dependencyName)
         {
-            // a =>   ----  a is dependent on b.  b is the dependency
+            // a => b  ----  a is dependent on b.  b is the dependency
 
 
             #region " Notes "
@@ -50,7 +50,7 @@ namespace OnTheBeachExercise
             #endregion
             if (dependentName == dependencyName)
             {
-                throw new InvalidOperationException("Jobs can't depend on themselves.");
+                throw new Exception("Jobs can't depend on themselves.");
             }
 
             Job dependency = CreateJob(dependencyName);
@@ -88,6 +88,8 @@ namespace OnTheBeachExercise
             // string orderedList = string.Join(", ", theJobs.Select(x => x.Name));
             #endregion " End Notes "
 
+            // a => b  ----  a is dependent on b.  b is the dependency
+
             // First add all non-dependent jobs to the list
             var arrangedJobs = theJobs.Where(x => x.DependsOn == null).OrderBy(y=>y.Name).ToList();
 
@@ -96,7 +98,16 @@ namespace OnTheBeachExercise
                 // Find the job index the dependent job depends on
                 int dependencyPosition = arrangedJobs.FindIndex(x=>x.Name == dependentJob.DependsOn.Name);
 
-                // if the dependency job is not in arranged jobs, add it to the end 
+                // Find the dependent job's position
+                int dependentPosition = arrangedJobs.FindIndex(x => x.Name == dependentJob.Name);
+
+                // Ensure that there is no circular dependencies (this happens when both dependent and dependency exist in arrangedJobs)
+                if (dependencyPosition > -1 || dependentPosition > -1)
+                {
+                    throw new Exception("Jobs can't have circular dependencies.");
+                }
+
+                // if the dependency job is not in arranged jobs, add it to the end of arrangedJobs together with the dependent job
                 if (dependencyPosition == -1)
                 {
                     arrangedJobs.Add(dependentJob.DependsOn);
@@ -104,8 +115,8 @@ namespace OnTheBeachExercise
                 }
                 else
                 {
-                    // ensure that the dependency job does not exist on the arranged jobs yet
-                    if (arrangedJobs.FindIndex(x => x.Name == dependentJob.Name) == -1)
+                    // ensure that the dependent job does not exist on the arranged jobs yet
+                    if (dependentPosition == -1)
                     {
                         // insert the dependent job immediately after the dependency job
                         arrangedJobs.Insert(dependencyPosition + 1, dependentJob);

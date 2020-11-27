@@ -82,15 +82,42 @@ namespace OnTheBeachTests
         [TestMethod]
         public void TestSelfDependency()
         {
-            // The ordered list should be the same as the one for TestMultipleDependency above
             JobSorter theSorter = new JobSorter();
 
             string jobList = "a =>, b =>, c => c";
             string orderedList = "";
 
-            var ex = Assert.ThrowsException<InvalidOperationException>(() => orderedList = theSorter.SortJobs(jobList));
+            var ex = Assert.ThrowsException<Exception>(() => orderedList = theSorter.SortJobs(jobList));
 
             Assert.AreEqual("Jobs can't depend on themselves.", ex.Message);
+        }
+
+
+        [TestMethod]
+        public void TestCircularDependencies()
+        {
+            JobSorter theSorter = new JobSorter();
+
+            string jobList = "a => , b => c, c => f, d => a, e => , f => b";
+            string orderedList = "";
+
+            var ex = Assert.ThrowsException<Exception>(() => orderedList = theSorter.SortJobs(jobList));
+
+            Assert.AreEqual("Jobs can't have circular dependencies.", ex.Message);
+        }
+
+        [TestMethod]
+        public void TestCircularDependenciesInDifferentOrder()
+        {
+            // The job list is the same as for TestCircularDependencies above but in a different order
+            JobSorter theSorter = new JobSorter();
+
+            string jobList = "d => a, a => , f => b, c => f, e => , b => c";
+            string orderedList = "";
+
+            var ex = Assert.ThrowsException<Exception>(() => orderedList = theSorter.SortJobs(jobList));
+
+            Assert.AreEqual("Jobs can't have circular dependencies.", ex.Message);
         }
     }
 }
