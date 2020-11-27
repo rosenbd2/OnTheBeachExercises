@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OnTheBeachExercise;
+using System;
 
 namespace OnTheBeachTests
 {
@@ -10,7 +11,7 @@ namespace OnTheBeachTests
         public void TestEmptyString()
         {
             JobSorter theSorter = new JobSorter();
-            
+
             string jobList = "";
             string orderedList = theSorter.SortJobs(jobList);
 
@@ -76,6 +77,20 @@ namespace OnTheBeachTests
             string orderedList = theSorter.SortJobs(jobList);
 
             Assert.AreEqual(orderedList, "a, d, f, c, b, e");
+        }
+
+        [TestMethod]
+        public void TestSelfDependency()
+        {
+            // The ordered list should be the same as the one for TestMultipleDependency above
+            JobSorter theSorter = new JobSorter();
+
+            string jobList = "a =>, b =>, c => c";
+            string orderedList = "";
+
+            var ex = Assert.ThrowsException<InvalidOperationException>(() => orderedList = theSorter.SortJobs(jobList));
+
+            Assert.AreEqual("Jobs can't depend on themselves.", ex.Message);
         }
     }
 }

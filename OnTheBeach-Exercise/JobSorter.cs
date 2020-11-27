@@ -44,6 +44,15 @@ namespace OnTheBeachExercise
         {
             // a =>   ----  a is dependent on b.  b is the dependency
 
+
+            #region " Notes "
+                // This was added to test SelfDependency
+            #endregion
+            if (dependentName == dependencyName)
+            {
+                throw new InvalidOperationException("Jobs can't depend on themselves.");
+            }
+
             Job dependency = CreateJob(dependencyName);
             Job dependent = CreateJob(dependentName);
 
@@ -78,7 +87,6 @@ namespace OnTheBeachExercise
             // 1st Attempt: list all jobs in theJobs with no sorting.  This satisfies  tests 1, 2 and 3
             // string orderedList = string.Join(", ", theJobs.Select(x => x.Name));
             #endregion " End Notes "
-
 
             // First add all non-dependent jobs to the list
             var arrangedJobs = theJobs.Where(x => x.DependsOn == null).OrderBy(y=>y.Name).ToList();
